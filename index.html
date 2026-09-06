@@ -561,7 +561,8 @@
   function toBool(v){ return v === true || v === "TRUE" || v === "true" || v === 1; }
 
   function apiGet(){
-    return fetch(API_URL, { method:"GET" }).then(function(res){
+    var url = API_URL + (API_URL.indexOf("?")===-1 ? "?" : "&") + "_ts=" + Date.now();
+    return fetch(url, { method:"GET", cache:"no-store" }).then(function(res){
       if (!res.ok) throw new Error("HTTP " + res.status);
       return res.json();
     });
@@ -623,61 +624,65 @@
     });
   }
 
+  function failed(msg){
+    return function(err){ showToast(msg); throw err; };
+  }
+
   function addExpense(data){
     return apiPost({ sheet:"Gastos", op:"add", data:data })
       .then(function(){ return syncNow(); })
-      .catch(function(){ showToast("No se pudo guardar. Intenta de nuevo."); });
+      .catch(failed("No se pudo guardar. Intenta de nuevo."));
   }
 
   function deleteExpense(id){
     return apiPost({ sheet:"Gastos", op:"delete", id:id })
       .then(function(){ return syncNow(); })
-      .catch(function(){ showToast("No se pudo eliminar."); });
+      .catch(failed("No se pudo eliminar."));
   }
 
   function saveBudgets(){
     return apiPost({ type:"setting", key:"budgets", value:state.budgets })
-      .catch(function(){ showToast("No se pudo guardar el presupuesto."); });
+      .catch(failed("No se pudo guardar el presupuesto."));
   }
 
   function savePeople(){
     return apiPost({ type:"setting", key:"people", value:state.people })
-      .catch(function(){ showToast("No se pudo guardar."); });
+      .catch(failed("No se pudo guardar."));
   }
 
   function addRecurring(data){
     return apiPost({ sheet:"Recurrentes", op:"add", data:data })
       .then(function(){ return syncNow(); })
-      .catch(function(){ showToast("No se pudo guardar."); });
+      .catch(failed("No se pudo guardar."));
   }
 
   function updateRecurringFull(id, fullData){
     return apiPost({ sheet:"Recurrentes", op:"update", id:id, data:fullData })
       .then(function(){ return syncNow(); })
-      .catch(function(){ showToast("No se pudo guardar."); });
+      .catch(failed("No se pudo guardar."));
   }
 
   function deleteRecurring(id){
     return apiPost({ sheet:"Recurrentes", op:"delete", id:id })
       .then(function(){ return syncNow(); })
-      .catch(function(){ showToast("No se pudo eliminar."); });
+      .catch(failed("No se pudo eliminar."));
   }
 
   function saveRecurringLog(){
     return apiPost({ type:"setting", key:"recurringLog", value:state.recurringLog })
-      .catch(function(){ showToast("No se pudo guardar."); });
+      .catch(failed("No se pudo guardar."));
   }
 
   function addWithdrawal(data){
     return apiPost({ sheet:"Retiros", op:"add", data:data })
       .then(function(){ return syncNow(); })
-      .catch(function(){ showToast("No se pudo guardar."); });
+      .catch(failed("No se pudo guardar."));
   }
 
   function deleteWithdrawal(id){
     return apiPost({ sheet:"Retiros", op:"delete", id:id })
       .then(function(){ return syncNow(); })
-      .catch(function(){ showToast("No se pudo eliminar."); });
+      .catch(failed("No se pudo eliminar."));
   }
 
   // ---------- init ----------
